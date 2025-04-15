@@ -3,6 +3,7 @@
 <head>
     <title>VNET Server - Loading</title>
     <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data: https:; img-src 'self' data: https: http:;">
     <style>
         /* Base Styles */
         html, body {
@@ -21,6 +22,7 @@
             left: 0;
             width: 100%;
             height: 100%;
+            background-color: #000080; /* Navy fallback color */
             background-image: url('https://i.imgur.com/LZDJWgC.gif');
             background-repeat: repeat;
             z-index: -100;
@@ -646,6 +648,22 @@
             
             // Initialize player list
             document.getElementById('online-players-list').innerHTML = '<div style="text-align:center; font-style:italic;">Waiting for player data...</div>';
+
+            // Debug any image loading issues
+            document.querySelectorAll('img').forEach(img => {
+                img.onerror = function() {
+                    this.style.border = '2px solid red';
+                    this.style.width = '30px';
+                    this.style.height = '30px';
+                    this.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+                };
+            });
+            
+            // If it's in GMod context, add more visibility
+            if (typeof GMod !== 'undefined') {
+                document.body.style.backgroundColor = "#ffffff";
+                document.querySelector('.background').style.backgroundColor = "#000080";
+            }
         };
     </script>
 </body>
