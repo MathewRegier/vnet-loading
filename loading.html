@@ -3,7 +3,6 @@
 <head>
     <title>VNET Server - Loading</title>
     <meta charset="utf-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data: https:; img-src 'self' data: https: http:;">
     <style>
         /* Base Styles */
         html, body {
@@ -13,6 +12,8 @@
             height: 100%;
             overflow: hidden;
             font-family: 'Tahoma', 'Arial', sans-serif;
+            background-color: #000080; /* Fallback blue background */
+            color: #ffffff;
         }
         
         /* Background */
@@ -23,8 +24,7 @@
             width: 100%;
             height: 100%;
             background-color: #000080; /* Navy fallback color */
-            background-image: url('https://i.imgur.com/LZDJWgC.gif');
-            background-repeat: repeat;
+            background-image: none; /* Remove external background image for reliability */
             z-index: -100;
         }
         
@@ -507,6 +507,12 @@
     <script>
         // GMod Loading function - required for server integration
         function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
+            console.log("GameDetails called:", servername, mapname, gamemode, steamid);
+            
+            // Make the body visible with a color to ensure something shows
+            document.body.style.backgroundColor = "#000080";
+            document.body.style.display = "block";
+            
             document.getElementById('server-name-info').textContent = servername;
             document.getElementById('current-map').textContent = mapname;
             document.getElementById('current-mode').textContent = gamemode;
@@ -517,13 +523,18 @@
             document.getElementById('connection-status').textContent = "Loading " + mapname;
             
             // Set player name (will be updated by server)
-            document.getElementById('player-name').textContent = "Loading...";
+            document.getElementById('player-name').textContent = "Player";
             
             // Try to load avatar if possible
             loadSteamAvatar(steamid);
             
             // Update page title
             document.title = servername + " - Loading";
+            
+            // Force display of windows
+            document.getElementById('welcome-window').style.display = 'block';
+            document.getElementById('players-window').style.display = 'block';
+            document.getElementById('rules-window').style.display = 'block';
         }
         
         // Load Steam avatar if possible
@@ -626,6 +637,15 @@
         
         // Initialize
         window.onload = function() {
+            console.log("Window loaded");
+            document.body.style.backgroundColor = "#000080";
+            
+            // Make windows visible immediately in case they're hidden
+            document.getElementById('welcome-window').style.visibility = 'visible';
+            document.getElementById('welcome-window').style.display = 'block';
+            document.getElementById('players-window').style.visibility = 'visible';
+            document.getElementById('rules-window').style.visibility = 'visible';
+            
             // Set initial times
             updateClock();
             setInterval(updateClock, 60000);
@@ -648,23 +668,27 @@
             
             // Initialize player list
             document.getElementById('online-players-list').innerHTML = '<div style="text-align:center; font-style:italic;">Waiting for player data...</div>';
-
-            // Debug any image loading issues
-            document.querySelectorAll('img').forEach(img => {
-                img.onerror = function() {
-                    this.style.border = '2px solid red';
-                    this.style.width = '30px';
-                    this.style.height = '30px';
-                    this.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
-                };
-            });
             
-            // If it's in GMod context, add more visibility
-            if (typeof GMod !== 'undefined') {
-                document.body.style.backgroundColor = "#ffffff";
-                document.querySelector('.background').style.backgroundColor = "#000080";
-            }
+            // Use simple avatar fallback
+            document.getElementById('steam-avatar').innerHTML = 
+                '<div style="width:100%; height:100%; background-color:#333; display:flex; align-items:center; justify-content:center; color:white;">Avatar</div>';
+            
+            // Basic debug info
+            document.getElementById('connection-status').textContent = "Page loaded successfully";
+            
+            // Set last visit
+            document.getElementById('player-last-visit').textContent = new Date().toLocaleDateString();
         };
+        
+        // Backup initialization in case onload doesn't fire
+        setTimeout(function() {
+            if (document.getElementById('connection-status').textContent === "Connecting...") {
+                console.log("Backup initialization");
+                document.body.style.backgroundColor = "#000080";
+                document.getElementById('connection-status').textContent = "Backup initialization";
+                document.getElementById('welcome-window').style.display = 'block';
+            }
+        }, 2000);
     </script>
 </body>
 </html>
