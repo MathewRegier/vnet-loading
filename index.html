@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VNET Server - Loading</title>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data: https:; img-src 'self' data: https: http:;">
+    <style>
+        /* Base Styles */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Tahoma', 'Arial', sans-serif;
+        }
+        
+        /* Background */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000080; /* Navy fallback color */
+            background-image: url('https://i.imgur.com/LZDJWgC.gif');
+            background-repeat: repeat;
+            z-index: -100;
+        }
+        
+        /* Desktop Icons */
+        .desktop-icons {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 150px;
+        }
+        .desktop-icon {
+            width: 70px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: default;
+        }
+        .desktop-icon-img {
+            width: 32px;
+            height: 32px;
+            margin: 0 auto 5px;
+            display: block;
+        }
+        .desktop-icon-text {
+            font-size: 11px;
+            color: #ffea00;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+        }
+        
+        /* Taskbar */
+        .taskbar-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background-color: #c0c0c0;
+            border-top: 1px solid #ffffff;
+            z-index: 1000;
+        }
+        .taskbar {
+            display: flex;
+            height: 100%;
+            align-items: center;
+        }
+        .start-button {
+            height: 24px;
+            width: 80px;
+            background-color: #c0c0c0;
+            color: black;
+            font-weight: bold;
+            text-align: center;
+            line-height: 24px;
+            border: 2px solid;
+            border-top-color: #ffffff;
+            border-left-color: #ffffff;
+            border-right-color: #848484;
+            border-bottom-color: #848484;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 3px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .start-button:active {
+            border-top-color: #848484;
+            border-left-color: #848484;
+            border-right-color: #ffffff;
+            border-bottom-color: #ffffff;
+            background-color: #d6d6d6;
+        }
+        .start-button img {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+        }
+        .taskbar-item {
+            height: 22px;
+            margin-left: 5px;
+            padding: 0 8px;
+            background-color: #c0c0c0;
+            border: 2px solid;
+            border-top-color: #ffffff;
+            border-left-color: #ffffff;
+            border-right-color: #848484;
+            border-bottom-color: #848484;
+            line-height: 22px;
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+        .taskbar-item.active {
+            background-color: #d6d6d6;
+            border-top-color: #848484;
+            border-left-color: #848484;
+            border-right-color: #ffffff;
+            border-bottom-color: #ffffff;
+        }
+        .status-text {
+            margin-left: 10px;
+            font-size: 12px;
+        }
+        .clock {
+            margin-left: auto;
+            margin-right: 10px;
+            font-size: 12px;
+            padding: 2px 6px;
+            border: 1px solid;
+            border-top-color: #848484;
+            border-left-color: #848484;
+            border-right-color: #ffffff;
+            border-bottom-color: #ffffff;
+        }
+        
+        /* Windows */
+        .window {
+            position: absolute;
+            background-color: #c0c0c0;
+            border: 2px solid;
+            border-top-color: #ffffff;
+            border-left-color: #ffffff;
+            border-right-color: #848484;
+            border-bottom-color: #848484;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .window-title {
+            height: 20px;
+            background-color: #000080;
+            color: white;
+            font-size: 12px;
+            line-height: 20px;
+            padding-left: 5px;
+            font-weight: bold;
+        }
+        .window-content {
+            padding: 5px;
+            overflow: auto;
+            height: calc(100% - 30px);
+            box-sizing: border-box;
+        }
+        
+        /* Welcome Window */
+        #welcome-window {
+            width: 40%;
+            height: 85%;
+            top: 5%;
+            left: 30%;
+        }
+        
+        /* Players Window */
+        #players-window {
+            width: 25%;
+            height: 35%;
+            top: 220px;
+            left: 20px;
+        }
+        
+        /* Rules Window */
+        #rules-window {
+            width: 25%;
+            height: 35%;
+            top: 40px;
+            right: 2%;
+        }
+        
+        /* Welcome Window Content */
+        h1 {
+            font-size: 16px;
+            margin: 5px 0;
+            text-align: center;
+            color: #2c00a0;
+        }
+        h2 {
+            font-size: 14px;
+            margin: 5px 0;
+            border-bottom: 1px solid #848484;
+            padding-bottom: 3px;
+            color: #2c00a0;
+        }
+        .window-section {
+            margin-bottom: 15px;
+            padding: 8px;
+            background-color: white;
+            border: none;
+            box-shadow: inset 0 0 20px rgba(255, 234, 0, 0.1);
+            border-radius: 2px;
+            box-sizing: border-box;
+        }
+        .content-box {
+            height: 120px;
+            overflow-y: auto;
+        }
+        .profile-container {
+            overflow: hidden;
+            width: 100%;
+            min-height: 100px;
+        }
+        .window-section.profile-section {
+            height: 150px;
+            margin-bottom: 15px;
+        }
+        .window-section.about-section {
+            height: 170px;
+            margin-bottom: 15px;
+        }
+        .window-section.equal-height {
+            height: 180px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+        .bottom-section {
+            position: relative;
+            margin-top: 30px;
+            padding-bottom: 10px;
+        }
+        .workshop-link {
+            color: #2c00a0;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 10px auto;
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .progress-bar {
+            height: 16px;
+            background-color: white;
+            border: none;
+            margin-top: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: repeating-linear-gradient(
+                -45deg,
+                #ffea00,
+                #ffea00 10px,
+                #ffc800 10px,
+                #ffc800 20px
+            );
+            transition: width 0.5s ease;
+        }
+        .divider {
+            height: 1px;
+            background-color: #848484;
+            margin: 10px 0;
+            box-shadow: 0 1px 0 0 #ffffff;
+        }
+        .list {
+            margin: 5px 0;
+            padding-left: 20px;
+            font-size: 11px;
+            line-height: 20px;
+        }
+        .avatar-container {
+            width: 80px;
+            height: 80px;
+            border: 1px solid #848484;
+            margin-right: 15px;
+            background-color: #c0c0c0;
+            float: left;
+        }
+        .profile-details {
+            margin-left: 95px;
+        }
+        .two-column-container {
+            width: 100%;
+            overflow: hidden;
+        }
+        .left-column {
+            width: 49%;
+            float: left;
+        }
+        .right-column {
+            width: 49%;
+            float: right;
+        }
+        .server-info-content {
+            font-size: 11px;
+            line-height: 22px;
+        }
+        
+        /* Rules Window Content */
+        .list-box {
+            background-color: white;
+            padding: 8px;
+            margin-bottom: 10px;
+            height: auto;
+            overflow-y: auto;
+            font-size: 11px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+        }
+        .list-box div {
+            margin-bottom: 4px;
+        }
+        .list-box div::before {
+            content: "•";
+            color: #ffc800;
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        
+        /* Players List */
+        .player-item {
+            padding: 2px 0;
+            border-bottom: 1px dotted #ddd;
+        }
+        .player-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="background"></div>
+    
+    <!-- Desktop Icons -->
+    <div class="desktop-icons">
+        <div class="desktop-icon">
+            <img src="https://i.imgur.com/VaTf42D.png" class="desktop-icon-img" alt="My Computer">
+            <div class="desktop-icon-text">My Computer</div>
+        </div>
+        <div class="desktop-icon">
+            <img src="https://i.imgur.com/PbexwUm.png" class="desktop-icon-img" alt="Network">
+            <div class="desktop-icon-text">Network</div>
+        </div>
+        <div class="desktop-icon">
+            <img src="https://i.imgur.com/yaBxYsM.png" class="desktop-icon-img" alt="Recycle Bin">
+            <div class="desktop-icon-text">Recycle Bin</div>
+        </div>
+    </div>
+    
+    <!-- Welcome Window -->
+    <div id="welcome-window" class="window">
+        <div class="window-title">VNET Server - Welcome</div>
+        <div class="window-content">
+            <h1>Welcome to VNET</h1>
+            <img src="https://i.imgur.com/zoj3kmU.png" class="logo" alt="VNET Logo">
+            
+            <!-- Your Profile Section (Now First) -->
+            <div class="window-section profile-section">
+                <h2>Your Profile</h2>
+                <div class="profile-container">
+                    <div class="avatar-container">
+                        <div id="steam-avatar" style="width:100%; height:100%; overflow:hidden; display:flex; justify-content:center; align-items:center;">
+                            <span style="font-size:10px;">Loading...</span>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div style="padding-top:5px;">Name: <span id="player-name">Loading...</span></div>
+                        <div style="padding-top:5px;">SteamID: <span id="player-steamid">Loading...</span></div>
+                        <div style="padding-top:5px;">Rank: <span id="player-rank">Loading...</span></div>
+                        <div style="padding-top:5px;">Last Visit: <span id="player-last-visit">Loading...</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- About VNET Section (Now Second) -->
+            <div class="window-section about-section">
+                <h2>About VNET</h2>
+                <div class="content-box">
+                    <p style="margin:0 0 5px 0; font-size:12px;">
+                        Welcome to VNET - a multi-gamemode server offering a variety of game experiences.
+                        Our server features TTT, Hide and Seek, Prop Hunt, Deathrun, Guess Who, Sandbox, and Murder gamemodes.
+                        We're a friendly community focused on fun gameplay and fair play.
+                    </p>
+                    <div style="margin-top:10px; border-top:1px solid #ddd; padding-top:5px;">
+                        <div style="font-size:12px;"><b>Workshop:</b> <span class="workshop-link" id="workshop-link">https://steamcommunity.com/sharedfiles/filedetails/?id=3448709095</span></div>
+                        <div style="font-size:11px; margin-top:3px;">Subscribe to our collection for faster load times!</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <!-- Two-column layout for Gamemodes and Server Info -->
+            <div class="two-column-container">
+                <div class="left-column">
+                    <div class="window-section equal-height" style="margin-bottom:0;">
+                        <h2>Gamemodes</h2>
+                        <ul class="list">
+                            <li>TTT</li>
+                            <li>Hide and Seek</li>
+                            <li>Prop Hunt</li>
+                            <li>Deathrun</li>
+                            <li>Guess Who</li>
+                            <li>Sandbox</li>
+                            <li>Murder</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="right-column">
+                    <div class="window-section equal-height" style="margin-bottom:0;">
+                        <h2>Server Info</h2>
+                        <div class="server-info-content">
+                            <div>Name: <span id="server-name-info">Loading...</span></div>
+                            <div>Current Map: <span id="current-map">Loading...</span></div>
+                            <div>Current Mode: <span id="current-mode">Loading...</span></div>
+                            <div>Players: <span id="player-count-info">0/0</span></div>
+                            <div>Average Ping: <span id="avg-ping">0 ms</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="divider" style="margin-top: 15px; margin-bottom: 15px;"></div>
+            
+            <div id="loadingSection" class="bottom-section">
+                <div style="text-align:center; font-size:12px; color:#2c00a0;">Connecting to server... <span id="tips">Please wait...</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress"></div>
+                </div>
+                <div style="font-size:11px; margin-top:5px;">
+                    <div>Status: <span id="connection-status">Connecting...</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Players Window -->
+    <div id="players-window" class="window">
+        <div class="window-title">VNET Server - Players</div>
+        <div class="window-content">
+            <h2>Players Online</h2>
+            <div class="content-box">
+                <div id="online-players-list">
+                    <div style="text-align:center; font-style:italic;">Waiting for player data...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Rules Window -->
+    <div id="rules-window" class="window">
+        <div class="window-title">VNET Server - Rules</div>
+        <div class="window-content">
+            <h2>Rules</h2>
+            <div class="list-box">
+                <div>No RDM (Random Deathmatch)</div>
+                <div>No racism, sexism, homophobia, transphobia, etc.</div>
+                <div>Don't be an asshole</div>
+                <div>You may troll a little bit, but be reasonable</div>
+            </div>
+            
+            <h2>Useful Commands</h2>
+            <div class="list-box">
+                <div>!rtv - Vote to change gamemode/map</div>
+                <div>!thirdperson - Toggle third person camera</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Taskbar -->
+    <div class="taskbar-container">
+        <div class="taskbar">
+            <div class="start-button">
+                Start
+            </div>
+            <div class="taskbar-item active">VNET Server - Welcome</div>
+            <div class="taskbar-item">VNET Server - Players</div>
+            <div class="taskbar-item">VNET Server - Rules</div>
+            <div class="status-text">Ready</div>
+            <div class="clock" id="clock">12:00 PM</div>
+        </div>
+    </div>
+    
+    <script>
+        // GMod Loading function - required for server integration
+        function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
+            document.getElementById('server-name-info').textContent = servername;
+            document.getElementById('current-map').textContent = mapname;
+            document.getElementById('current-mode').textContent = gamemode;
+            document.getElementById('player-count-info').textContent = '1/' + maxplayers;
+            document.getElementById('player-steamid').textContent = steamid;
+            
+            // Update status
+            document.getElementById('connection-status').textContent = "Loading " + mapname;
+            
+            // Set player name (will be updated by server)
+            document.getElementById('player-name').textContent = "Loading...";
+            
+            // Try to load avatar if possible
+            loadSteamAvatar(steamid);
+            
+            // Update page title
+            document.title = servername + " - Loading";
+        }
+        
+        // Load Steam avatar if possible
+        function loadSteamAvatar(steamid) {
+            if (!steamid) return;
+            
+            // Default avatar as fallback
+            document.getElementById('steam-avatar').innerHTML = 
+                `<img src="https://i.imgur.com/PNl4nfA.png" style="width:100%; height:100%;">`;
+        }
+        
+        // Progress updates - GMod will call these
+        let filesNeeded = 0;
+        let filesTotal = 0;
+        
+        function SetStatusChanged(status) {
+            document.getElementById('connection-status').textContent = status;
+        }
+        
+        function SetFilesTotal(total) {
+            filesTotal = total;
+            updateProgress();
+        }
+        
+        function SetFilesNeeded(needed) {
+            filesNeeded = needed;
+            updateProgress();
+        }
+        
+        function DownloadingFile(filename) {
+            document.getElementById('connection-status').textContent = "Downloading: " + filename;
+        }
+        
+        function Finished() {
+            document.getElementById('progress').style.width = '100%';
+            document.getElementById('connection-status').textContent = "Finishing up...";
+        }
+        
+        function updateProgress() {
+            if (filesNeeded <= 0 || filesTotal <= 0) {
+                progress = 0;
+            } else {
+                progress = Math.round(((filesTotal - filesNeeded) / filesTotal) * 100);
+            }
+            document.getElementById('progress').style.width = progress + '%';
+        }
+        
+        // Tips rotation
+        const tips = [
+            "Remember to check out our Workshop collection!",
+            "Type !rtv to vote for a map change",
+            "Type !thirdperson to toggle third-person view",
+            "No RDM allowed - play fair!",
+            "Be respectful to other players",
+            "Join our community Discord for updates!"
+        ];
+        
+        let currentTip = 0;
+        function rotateTip() {
+            document.getElementById('tips').textContent = tips[currentTip];
+            currentTip = (currentTip + 1) % tips.length;
+        }
+        
+        // Clock update
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            document.getElementById('clock').textContent = hours + ':' + minutes + ' ' + ampm;
+        }
+        
+        // Workshop link functionality
+        document.getElementById('workshop-link').addEventListener('click', function() {
+            if (typeof GMod !== 'undefined' && GMod.OpenURL) {
+                GMod.OpenURL('https://steamcommunity.com/sharedfiles/filedetails/?id=3448709095');
+            } else {
+                window.open('https://steamcommunity.com/sharedfiles/filedetails/?id=3448709095', '_blank');
+            }
+        });
+        
+        // Window management
+        function focusWindow(windowId) {
+            // Reset all taskbar items
+            document.querySelectorAll('.taskbar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Activate the clicked taskbar item
+            const taskbarItems = document.querySelectorAll('.taskbar-item');
+            if (windowId === 'welcome-window') taskbarItems[0].classList.add('active');
+            if (windowId === 'players-window') taskbarItems[1].classList.add('active');
+            if (windowId === 'rules-window') taskbarItems[2].classList.add('active');
+            
+            // Bring window to front
+            document.getElementById(windowId).style.zIndex = 100;
+        }
+        
+        // Initialize
+        window.onload = function() {
+            // Set initial times
+            updateClock();
+            setInterval(updateClock, 60000);
+            
+            // Start tip rotation
+            setInterval(rotateTip, 5000);
+            rotateTip();
+            
+            // Setup window management
+            document.querySelectorAll('.taskbar-item').forEach((item, index) => {
+                item.addEventListener('click', function() {
+                    if (index === 0) focusWindow('welcome-window');
+                    if (index === 1) focusWindow('players-window');
+                    if (index === 2) focusWindow('rules-window');
+                });
+            });
+            
+            // Set player rank
+            document.getElementById('player-rank').textContent = "Player";
+            
+            // Initialize player list
+            document.getElementById('online-players-list').innerHTML = '<div style="text-align:center; font-style:italic;">Waiting for player data...</div>';
+
+            // Debug any image loading issues
+            document.querySelectorAll('img').forEach(img => {
+                img.onerror = function() {
+                    this.style.border = '2px solid red';
+                    this.style.width = '30px';
+                    this.style.height = '30px';
+                    this.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+                };
+            });
+            
+            // If it's in GMod context, add more visibility
+            if (typeof GMod !== 'undefined') {
+                document.body.style.backgroundColor = "#ffffff";
+                document.querySelector('.background').style.backgroundColor = "#000080";
+            }
+        };
+    </script>
+</body>
+</html>
