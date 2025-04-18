@@ -14,7 +14,7 @@
             font-family: 'Tahoma', 'Arial', sans-serif;
         }
         
-        /* Background - replaced invalid image with solid color */
+        /* Background */
         .background {
             position: fixed;
             top: 0;
@@ -22,7 +22,6 @@
             width: 100%;
             height: 100%;
             background-color: #4000bf; /* Dark purple to match logo */
-            /* Removed invalid background image */
             z-index: -100;
         }
         
@@ -63,9 +62,7 @@
             z-index: 1000;
         }
         .taskbar {
-            display: flex;
             height: 100%;
-            align-items: center;
         }
         .start-button {
             height: 24px;
@@ -80,12 +77,9 @@
             border-left-color: #ffffff;
             border-right-color: #848484;
             border-bottom-color: #848484;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             margin-left: 3px;
             cursor: pointer;
-            user-select: none;
+            float: left;
         }
         .start-button:active {
             border-top-color: #848484;
@@ -98,6 +92,7 @@
             width: 16px;
             height: 16px;
             margin-right: 5px;
+            vertical-align: middle;
         }
         .taskbar-item {
             height: 22px;
@@ -111,10 +106,10 @@
             border-bottom-color: #848484;
             line-height: 22px;
             font-size: 11px;
-            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 150px;
+            float: left;
         }
         .taskbar-item.active {
             background-color: #d6d6d6;
@@ -126,9 +121,10 @@
         .status-text {
             margin-left: 10px;
             font-size: 12px;
+            float: left;
+            line-height: 30px;
         }
         .clock {
-            margin-left: auto;
             margin-right: 10px;
             font-size: 12px;
             padding: 2px 6px;
@@ -137,6 +133,8 @@
             border-left-color: #848484;
             border-right-color: #ffffff;
             border-bottom-color: #ffffff;
+            float: right;
+            margin-top: 3px;
         }
         
         /* Windows */
@@ -148,7 +146,6 @@
             border-left-color: #ffffff;
             border-right-color: #848484;
             border-bottom-color: #848484;
-            /* Removed box-shadow */
         }
         .window-title {
             height: 20px;
@@ -162,8 +159,7 @@
         .window-content {
             padding: 5px;
             overflow: auto;
-            height: calc(100% - 30px);
-            box-sizing: border-box;
+            height: 85%;
         }
         
         /* Welcome Window */
@@ -209,10 +205,9 @@
             padding: 8px;
             background-color: white;
             border: none;
-            /* Removed box-shadow and border-radius */
         }
         .content-box {
-            height: 120px;
+            height: auto;
             overflow-y: auto;
         }
         .profile-container {
@@ -230,7 +225,6 @@
         }
         .window-section.equal-height {
             height: 180px;
-            box-sizing: border-box;
             margin-bottom: 15px;
         }
         .bottom-section {
@@ -248,7 +242,6 @@
             height: 120px;
             margin: 10px auto;
             display: block;
-            /* Removed border-radius and box-shadow */
         }
         .progress-bar {
             height: 16px;
@@ -256,19 +249,16 @@
             border: none;
             margin-top: 10px;
             overflow: hidden;
-            /* Removed box-shadow and border-radius */
         }
         .progress-fill {
             height: 100%;
             width: 0%;
-            background-color: #ffea00; /* Simplified, removed gradient */
-            /* Removed transition */
+            background-color: #ffea00;
         }
         .divider {
             height: 1px;
             background-color: #848484;
             margin: 10px 0;
-            box-shadow: 0 1px 0 0 #ffffff;
         }
         .list {
             margin: 5px 0;
@@ -314,7 +304,6 @@
             height: auto;
             overflow-y: auto;
             font-size: 11px;
-            /* Removed box-shadow and border-radius */
         }
         .list-box div {
             margin-bottom: 4px;
@@ -337,27 +326,16 @@
             border-bottom: none;
         }
         
-        /* Update content-box in the about section to fit content */
-        .about-section .content-box {
-            height: auto;
-            overflow-y: visible;
-        }
-        
+        /* Explicitly style steam avatar for old browsers */
         #steam-avatar {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-            margin: 0;
+            text-align: center;
         }
-        
         #steam-avatar img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
         }
     </style>
 </head>
@@ -388,7 +366,7 @@
             <h1>Welcome to VNET</h1>
             <img src="http://i.imgur.com/zoj3kmU.png" class="logo" alt="VNET Logo">
             
-            <!-- Your Profile Section (Now First) -->
+            <!-- Your Profile Section -->
             <div class="window-section profile-section">
                 <h2>Your Profile</h2>
                 <div class="profile-container">
@@ -406,7 +384,7 @@
                 </div>
             </div>
             
-            <!-- About VNET Section (Now Second) -->
+            <!-- About VNET Section -->
             <div class="window-section about-section">
                 <h2>About VNET</h2>
                 <div class="content-box">
@@ -519,17 +497,28 @@
     <script>
         // GMod Loading function - required for server integration
         function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
-            document.getElementById('server-name-info').textContent = servername;
-            document.getElementById('current-map').textContent = mapname;
-            document.getElementById('current-mode').textContent = gamemode;
-            document.getElementById('player-count-info').textContent = '1/' + maxplayers;
-            document.getElementById('player-steamid').textContent = steamid;
+            if (document.getElementById('server-name-info'))
+                document.getElementById('server-name-info').textContent = servername || "Unknown";
+            
+            if (document.getElementById('current-map'))
+                document.getElementById('current-map').textContent = mapname || "Unknown";
+            
+            if (document.getElementById('current-mode'))
+                document.getElementById('current-mode').textContent = gamemode || "Unknown";
+            
+            if (document.getElementById('player-count-info'))
+                document.getElementById('player-count-info').textContent = '1/' + (maxplayers || "?");
+            
+            if (document.getElementById('player-steamid'))
+                document.getElementById('player-steamid').textContent = steamid || "Unknown";
             
             // Update status
-            document.getElementById('connection-status').textContent = "Loading " + mapname;
+            if (document.getElementById('connection-status'))
+                document.getElementById('connection-status').textContent = "Loading " + (mapname || "map");
             
             // Set player name (will be updated by server)
-            document.getElementById('player-name').textContent = "Loading...";
+            if (document.getElementById('player-name'))
+                document.getElementById('player-name').textContent = "Loading...";
             
             // Try to load avatar if possible
             loadSteamAvatar(steamid);
@@ -540,10 +529,17 @@
         
         // Function to handle player data - called by GMod
         function SetPlayerData(name, steamid, rank, lastvisit) {
-            if (name) document.getElementById('player-name').textContent = name;
-            if (steamid) document.getElementById('player-steamid').textContent = steamid;
-            if (rank) document.getElementById('player-rank').textContent = rank;
-            if (lastvisit) document.getElementById('player-last-visit').textContent = lastvisit;
+            if (name && document.getElementById('player-name'))
+                document.getElementById('player-name').textContent = name;
+            
+            if (steamid && document.getElementById('player-steamid'))
+                document.getElementById('player-steamid').textContent = steamid;
+            
+            if (rank && document.getElementById('player-rank'))
+                document.getElementById('player-rank').textContent = rank;
+            
+            if (lastvisit && document.getElementById('player-last-visit'))
+                document.getElementById('player-last-visit').textContent = lastvisit;
             
             // Re-try avatar load with updated steamid if provided
             if (steamid) loadSteamAvatar(steamid);
@@ -551,63 +547,70 @@
         
         // Function to receive the player list - called by GMod
         function SetOnlinePlayers(playerData) {
-            // Check if playerData is a string (JSON) and parse it
-            if (typeof playerData === 'string') {
-                try {
-                    playerData = JSON.parse(playerData);
-                } catch(e) {
-                    console.error("Failed to parse player data");
-                    return;
+            var playersListElem = document.getElementById('online-players-list');
+            if (!playersListElem) return;
+            
+            // Try to parse string to array if needed
+            try {
+                if (typeof playerData === 'string') {
+                    // Basic attempt to parse the JSON string
+                    playerData = eval('(' + playerData + ')');
                 }
+            } catch(e) {
+                playersListElem.innerHTML = '<div style="text-align:center; font-style:italic;">Error loading players</div>';
+                return;
             }
             
-            // Check if playerData is an array
-            if (!Array.isArray(playerData)) {
-                document.getElementById('online-players-list').innerHTML = '<div style="text-align:center; font-style:italic;">No players online</div>';
+            // Simple check if it's array-like
+            if (!playerData || typeof playerData.length !== 'number') {
+                playersListElem.innerHTML = '<div style="text-align:center; font-style:italic;">No players online</div>';
                 return;
             }
             
             // Build player list HTML
             var playersHTML = '';
             for (var i = 0; i < playerData.length; i++) {
-                var player = playerData[i];
-                playersHTML += '<div class="player-item">' + player.name + '</div>';
+                if (playerData[i] && playerData[i].name) {
+                    playersHTML += '<div class="player-item">' + playerData[i].name + '</div>';
+                }
             }
             
             // If no players
-            if (playersHTML === '') {
+            if (!playersHTML) {
                 playersHTML = '<div style="text-align:center; font-style:italic;">No players online</div>';
             }
             
             // Update the list
-            document.getElementById('online-players-list').innerHTML = playersHTML;
+            playersListElem.innerHTML = playersHTML;
             
             // Update player count
             if (playerData.length > 0) {
                 var playerCountElement = document.getElementById('player-count-info');
-                var currentText = playerCountElement.textContent;
-                var parts = currentText.split('/');
-                if (parts.length > 1) {
-                    playerCountElement.textContent = playerData.length + '/' + parts[1];
+                if (playerCountElement) {
+                    var currentText = playerCountElement.textContent || "";
+                    var parts = currentText.split('/');
+                    if (parts.length > 1) {
+                        playerCountElement.textContent = playerData.length + '/' + parts[1];
+                    }
                 }
             }
         }
         
         // Function to receive player avatar - called by GMod
         function SetPlayerImage(imageData) {
-            if (imageData) {
-                document.getElementById('steam-avatar').innerHTML = 
-                    '<img src="' + imageData + '" alt="Avatar">';
+            var avatarElem = document.getElementById('steam-avatar');
+            if (avatarElem && imageData) {
+                avatarElem.innerHTML = '<img src="' + imageData + '" alt="Avatar">';
             }
         }
         
         // Load Steam avatar if possible
         function loadSteamAvatar(steamid) {
-            if (!steamid) return;
+            var avatarElem = document.getElementById('steam-avatar');
+            if (!avatarElem) return;
             
             // Default avatar as fallback
-            document.getElementById('steam-avatar').innerHTML = 
-                '<img src="http://i.imgur.com/PNl4nfA.png" alt="Default Avatar" style="width:100%; height:100%;">';
+            avatarElem.innerHTML = '<img src="http://i.imgur.com/PNl4nfA.png" alt="Default Avatar" style="width:100%; height:100%;">';
                 
             // In a real GMod context, GMod will call SetPlayerImage with the actual avatar
         }
@@ -617,35 +620,41 @@
         var filesTotal = 0;
         
         function SetStatusChanged(status) {
-            document.getElementById('connection-status').textContent = status;
+            var statusElem = document.getElementById('connection-status');
+            if (statusElem) statusElem.textContent = status || "Unknown";
         }
         
         function SetFilesTotal(total) {
-            filesTotal = total;
+            filesTotal = total || 0;
             updateProgress();
         }
         
         function SetFilesNeeded(needed) {
-            filesNeeded = needed;
+            filesNeeded = needed || 0;
             updateProgress();
         }
         
         function DownloadingFile(filename) {
-            document.getElementById('connection-status').textContent = "Downloading: " + filename;
+            var statusElem = document.getElementById('connection-status');
+            if (statusElem) statusElem.textContent = "Downloading: " + (filename || "files");
         }
         
         function Finished() {
-            document.getElementById('progress').style.width = '100%';
-            document.getElementById('connection-status').textContent = "Finishing up...";
+            var progressElem = document.getElementById('progress');
+            if (progressElem) progressElem.style.width = '100%';
+            
+            var statusElem = document.getElementById('connection-status');
+            if (statusElem) statusElem.textContent = "Finishing up...";
         }
         
         function updateProgress() {
-            if (filesNeeded <= 0 || filesTotal <= 0) {
-                progress = 0;
-            } else {
+            var progress = 0;
+            if (filesNeeded >= 0 && filesTotal > 0) {
                 progress = Math.round(((filesTotal - filesNeeded) / filesTotal) * 100);
             }
-            document.getElementById('progress').style.width = progress + '%';
+            
+            var progressElem = document.getElementById('progress');
+            if (progressElem) progressElem.style.width = progress + '%';
         }
         
         // Tips rotation
@@ -660,12 +669,16 @@
         
         var currentTip = 0;
         function rotateTip() {
-            document.getElementById('tips').textContent = tips[currentTip];
+            var tipsElem = document.getElementById('tips');
+            if (tipsElem) tipsElem.textContent = tips[currentTip] || "";
             currentTip = (currentTip + 1) % tips.length;
         }
         
-        // Clock update - simplified to avoid modern JS methods
+        // Clock update - super simplified
         function updateClock() {
+            var clockElem = document.getElementById('clock');
+            if (!clockElem) return;
+            
             var now = new Date();
             var hours = now.getHours();
             var minutes = now.getMinutes();
@@ -676,9 +689,9 @@
             hours = hours ? hours : 12; // the hour '0' should be '12'
             
             // Add leading zero to minutes if needed
-            minutes = minutes < 10 ? '0' + minutes : minutes;
+            if (minutes < 10) minutes = '0' + minutes;
             
-            document.getElementById('clock').textContent = hours + ':' + minutes + ' ' + ampm;
+            clockElem.textContent = hours + ':' + minutes + ' ' + ampm;
         }
         
         // Workshop link functionality
@@ -691,6 +704,7 @@
                     } else {
                         window.open('http://steamcommunity.com/sharedfiles/filedetails/?id=3448709095', '_blank');
                     }
+                    return false;
                 };
             }
         }
@@ -698,39 +712,52 @@
         // Window management
         function focusWindow(windowId) {
             // Reset all taskbar items
-            var taskbarItems = document.querySelectorAll('.taskbar-item');
+            var taskbarItems = document.getElementsByClassName('taskbar-item');
             for (var i = 0; i < taskbarItems.length; i++) {
-                taskbarItems[i].classList.remove('active');
+                taskbarItems[i].className = taskbarItems[i].className.replace(/\bactive\b/g, '');
             }
             
             // Activate the clicked taskbar item
-            if (windowId === 'welcome-window') taskbarItems[0].classList.add('active');
-            if (windowId === 'players-window') taskbarItems[1].classList.add('active');
-            if (windowId === 'rules-window') taskbarItems[2].classList.add('active');
+            if (windowId === 'welcome-window' && taskbarItems[0]) 
+                taskbarItems[0].className += ' active';
+            if (windowId === 'players-window' && taskbarItems[1]) 
+                taskbarItems[1].className += ' active';
+            if (windowId === 'rules-window' && taskbarItems[2]) 
+                taskbarItems[2].className += ' active';
             
             // Bring window to front
-            document.getElementById(windowId).style.zIndex = 100;
+            var windowElem = document.getElementById(windowId);
+            if (windowElem) windowElem.style.zIndex = 100;
         }
         
         // Setup taskbar clicks
         function setupTaskbar() {
-            var taskbarItems = document.querySelectorAll('.taskbar-item');
+            var taskbarItems = document.getElementsByClassName('taskbar-item');
             
             if (taskbarItems[0]) {
-                taskbarItems[0].onclick = function() { focusWindow('welcome-window'); };
+                taskbarItems[0].onclick = function() { 
+                    focusWindow('welcome-window'); 
+                    return false;
+                };
             }
             
             if (taskbarItems[1]) {
-                taskbarItems[1].onclick = function() { focusWindow('players-window'); };
+                taskbarItems[1].onclick = function() { 
+                    focusWindow('players-window'); 
+                    return false;
+                };
             }
             
             if (taskbarItems[2]) {
-                taskbarItems[2].onclick = function() { focusWindow('rules-window'); };
+                taskbarItems[2].onclick = function() { 
+                    focusWindow('rules-window'); 
+                    return false;
+                };
             }
         }
         
-        // Initialize
-        window.onload = function() {
+        // Initialize - will run when the page loads
+        function init() {
             // Set initial times
             updateClock();
             setInterval(updateClock, 60000);
@@ -739,33 +766,34 @@
             setInterval(rotateTip, 5000);
             rotateTip();
             
-            // Setup window management
+            // Setup interactive elements
             setupTaskbar();
             setupWorkshopLink();
             
-            // Set player rank
-            document.getElementById('player-rank').textContent = "Player";
+            // Set player rank default
+            var rankElem = document.getElementById('player-rank');
+            if (rankElem) rankElem.textContent = "Player";
             
-            // Initialize player list
-            document.getElementById('online-players-list').innerHTML = '<div style="text-align:center; font-style:italic;">Waiting for player data...</div>';
-
-            // Debug any image loading issues
-            var images = document.querySelectorAll('img');
-            for (var i = 0; i < images.length; i++) {
-                images[i].onerror = function() {
-                    this.style.border = '2px solid red';
-                    this.style.width = '30px';
-                    this.style.height = '30px';
-                    this.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
-                };
+            // Initialize player list with waiting message
+            var playersListElem = document.getElementById('online-players-list');
+            if (playersListElem) {
+                playersListElem.innerHTML = '<div style="text-align:center; font-style:italic;">Waiting for player data...</div>';
             }
             
             // If it's in GMod context, add more visibility
             if (typeof GMod !== 'undefined') {
                 document.body.style.backgroundColor = "#ffffff";
-                document.querySelector('.background').style.backgroundColor = "#000080";
+                var bgElem = document.getElementsByClassName('background')[0];
+                if (bgElem) bgElem.style.backgroundColor = "#4000bf";
             }
-        };
+        }
+        
+        // Make sure we run init when the page is loaded
+        if (window.attachEvent) {
+            window.attachEvent('onload', init);
+        } else {
+            window.onload = init;
+        }
     </script>
 </body>
 </html>
